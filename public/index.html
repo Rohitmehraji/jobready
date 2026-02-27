@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JobReady AI Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-bg"></div>
+    <main class="layout">
+      <section class="hero glass">
+        <div class="avatar-card">
+          <img id="avatarPreview" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=280&h=280&fit=crop" alt="Agent avatar" />
+          <label class="upload-chip" for="avatarInput">Customize avatar</label>
+          <input id="avatarInput" type="file" accept="image/*" hidden />
+        </div>
+        <div class="hero-text">
+          <h1>JobReady AI Agent</h1>
+          <p>
+            Upload only your resume. I’ll fetch recently active jobs, match by skills and experience, estimate ATS alignment,
+            and return role details + direct application links.
+          </p>
+          <div class="assistant-bubble">
+            Hey! I’m your friendly career agent. I can even look like you by using your uploaded image.
+          </div>
+        </div>
+      </section>
+
+      <section class="panel glass">
+        <h2>Resume-only job matching</h2>
+        <form id="resumeForm" class="resume-form">
+          <label class="file-picker" for="resumeInput">Select resume (PDF, DOCX, TXT)</label>
+          <input id="resumeInput" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" required />
+          <button type="submit" id="submitBtn">Find Matched Jobs</button>
+        </form>
+
+        <div id="status" class="status"></div>
+
+        <div id="profileSummary" class="profile-summary hidden"></div>
+
+        <div id="jobsContainer" class="jobs"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
