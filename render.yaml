@@ -7,11 +7,9 @@ services:
     branch: main
     buildCommand: npm install
     startCommand: npm start
-    healthCheckPath: /api/health
+    healthCheckPath: /healthz
     envVars:
       - key: NODE_VERSION
         value: 22
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000

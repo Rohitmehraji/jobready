@@ -192,6 +192,10 @@ function rankJobs(resumeProfile, jobs) {
     .slice(0, 12);
 }
 
+app.get('/healthz', (_req, res) => {
+  res.status(200).send('ok');
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 

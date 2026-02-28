@@ -103,3 +103,13 @@ curl -X POST http://localhost:3000/api/jobs/match \
 - Add rate limiting + strict CORS policy.
 - Add MIME allowlist + malware scan for uploads.
 - Add monitoring + alerting.
+
+
+## Render timeout quick fix
+
+If Render shows **Timed Out** after `npm start`, use these settings:
+- Health check path: `/healthz`
+- Do **not** hardcode `PORT` in Render env vars (Render injects it automatically)
+- Start command: `npm start`
+
+This repo already includes `/healthz` and `render.yaml` configured for that.
