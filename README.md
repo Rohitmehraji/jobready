@@ -19,7 +19,7 @@ Open: `http://localhost:3000`
 
 ## Backend APIs (real integration-ready)
 
-Yes — this project has **4 backend APIs** you can wire to frontend or mobile clients.
+This project has **4 backend APIs** you can wire to frontend/mobile clients.
 
 1. `POST /api/resumes/upload`
    - Purpose: real resume file upload + parsing (PDF/DOCX/TXT).
@@ -33,20 +33,58 @@ Yes — this project has **4 backend APIs** you can wire to frontend or mobile c
 
 3. `GET /api/jobs/active?limit=30`
    - Purpose: returns currently active raw job listings from provider.
-   - Useful for admin/debug/dashboard views.
 
 4. `GET /api/health`
-   - Purpose: service health check for deployments.
+   - Purpose: service health check.
 
-## How to attach these APIs in real apps
+## Deploy on Railway (recommended for this repo)
 
-### Frontend flow (already implemented in `public/app.js`)
+This repository now includes **`railway.json`** so Railway can auto-detect startup + health checks.
+
+### 1) One-time setup
+1. Push latest code to GitHub.
+2. Go to Railway → **New Project** → **Deploy from GitHub repo**.
+3. Select this repository.
+
+### 2) Service configuration
+Railway will use:
+- Start command: `npm start`
+- Health check path: `/api/health`
+- Health check timeout: `120s`
+
+(These are defined in `railway.json`.)
+
+### 3) Environment variables
+Set in Railway dashboard → Variables:
+- `NODE_ENV=production`
+- `PORT` is provided by Railway automatically (do not hardcode)
+
+### 4) Verify deploy
+After first successful deploy, open your Railway generated domain and run:
+
+```bash
+curl -sS https://<YOUR-RAILWAY-DOMAIN>/api/health
+```
+
+Expected:
+
+```json
+{"ok":true,"service":"jobready-ai-agent"}
+```
+
+Then test jobs endpoint:
+
+```bash
+curl -sS "https://<YOUR-RAILWAY-DOMAIN>/api/jobs/active?limit=5"
+```
+
+## Frontend/API attach flow (already implemented)
 1. Upload resume file to `/api/resumes/upload`.
 2. Read returned `resumeId`.
 3. Call `/api/jobs/match` with this `resumeId`.
 4. Render ranked jobs.
 
-### cURL examples
+## cURL examples
 
 ```bash
 curl -X POST http://localhost:3000/api/resumes/upload \
@@ -59,68 +97,9 @@ curl -X POST http://localhost:3000/api/jobs/match \
   -d '{"resumeId":"PUT_RESUME_ID_HERE"}'
 ```
 
-```bash
-curl "http://localhost:3000/api/jobs/active?limit=20"
-```
-
-## One-click Render deployment blueprint (tailored)
-
-This repo now includes a Render Blueprint file: **`render.yaml`**.
-
-### What is preconfigured
-- Node web service name: `jobready-ai-agent`
-- Build command: `npm install`
-- Start command: `npm start`
-- Health check: `/api/health`
-- Default env vars:
-  - `NODE_VERSION=22`
-  - `NODE_ENV=production`
-  - `PORT=10000`
-
-### One-click launch steps
-1. Push this repo to GitHub (ensure your deployment branch is `main`, or edit `branch:` in `render.yaml`).
-2. Open Render dashboard → **New** → **Blueprint**.
-3. Connect your GitHub repo and select this repository.
-4. Render auto-detects `render.yaml` and shows the service preview.
-5. Click **Apply** / **Deploy**.
-6. Wait for build to complete; Render will give a public URL like:
-   - `https://jobready-ai-agent.onrender.com`
-
-### Post-deploy tests (must pass)
-
-Replace `<YOUR_RENDER_URL>` below with your Render URL.
-
-```bash
-curl -sS <YOUR_RENDER_URL>/api/health
-```
-Expected response shape:
-
-```json
-{"ok":true,"service":"jobready-ai-agent"}
-```
-
-```bash
-curl -sS "<YOUR_RENDER_URL>/api/jobs/active?limit=5"
-```
-Expected: JSON with `totalFetched` and `jobs[]`.
-
-```bash
-curl -sS -X POST <YOUR_RENDER_URL>/api/resumes/upload \
-  -F "resume=@/absolute/path/to/resume.pdf"
-```
-Expected: JSON with `resumeId` and `profileSummary`.
-
-```bash
-curl -sS -X POST <YOUR_RENDER_URL>/api/jobs/match \
-  -H "Content-Type: application/json" \
-  -d '{"resumeId":"<PASTE_RESUME_ID_HERE>"}'
-```
-Expected: JSON with `jobs[]`, ATS scores, and links.
-
-## Make it truly startup-ready (next hardening)
-- Add authentication (API key/JWT) before exposing APIs publicly.
+## Production hardening checklist
+- Add auth (JWT/API key) before exposing APIs publicly.
 - Replace in-memory `resumeStore` with Redis/PostgreSQL for persistence.
-- Add rate limiting and CORS policy.
-- Add MIME allowlist + malware scanning for uploads.
-- Add logging/monitoring (Render logs + Sentry).
-- Add privacy policy / retention rules for uploaded resumes.
+- Add rate limiting + strict CORS policy.
+- Add MIME allowlist + malware scan for uploads.
+- Add monitoring + alerting.

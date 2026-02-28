@@ -305,6 +305,6 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'jobready-ai-agent' });
 });
 
-app.listen(PORT, () => {
-  console.log(`JobReady AI agent running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`JobReady AI agent running on http://0.0.0.0:${PORT}`);
 });
