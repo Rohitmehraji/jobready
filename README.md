@@ -19,7 +19,7 @@ Open: `http://localhost:3000`
 
 ## Backend APIs (real integration-ready)
 
-Yes — this project now has **4 backend APIs** that you can wire to frontend or mobile clients.
+Yes — this project has **4 backend APIs** you can wire to frontend or mobile clients.
 
 1. `POST /api/resumes/upload`
    - Purpose: real resume file upload + parsing (PDF/DOCX/TXT).
@@ -63,8 +63,64 @@ curl -X POST http://localhost:3000/api/jobs/match \
 curl "http://localhost:3000/api/jobs/active?limit=20"
 ```
 
-## Production attachment notes
-- Put this service behind Nginx/Cloudflare/Load Balancer.
-- Add auth (JWT/API key) before exposing APIs publicly.
-- Replace in-memory `resumeStore` with Redis/DB for persistence.
-- Add file malware scanning + MIME validation for secure uploads.
+## One-click Render deployment blueprint (tailored)
+
+This repo now includes a Render Blueprint file: **`render.yaml`**.
+
+### What is preconfigured
+- Node web service name: `jobready-ai-agent`
+- Build command: `npm install`
+- Start command: `npm start`
+- Health check: `/api/health`
+- Default env vars:
+  - `NODE_VERSION=22`
+  - `NODE_ENV=production`
+  - `PORT=10000`
+
+### One-click launch steps
+1. Push this repo to GitHub (ensure your deployment branch is `main`, or edit `branch:` in `render.yaml`).
+2. Open Render dashboard → **New** → **Blueprint**.
+3. Connect your GitHub repo and select this repository.
+4. Render auto-detects `render.yaml` and shows the service preview.
+5. Click **Apply** / **Deploy**.
+6. Wait for build to complete; Render will give a public URL like:
+   - `https://jobready-ai-agent.onrender.com`
+
+### Post-deploy tests (must pass)
+
+Replace `<YOUR_RENDER_URL>` below with your Render URL.
+
+```bash
+curl -sS <YOUR_RENDER_URL>/api/health
+```
+Expected response shape:
+
+```json
+{"ok":true,"service":"jobready-ai-agent"}
+```
+
+```bash
+curl -sS "<YOUR_RENDER_URL>/api/jobs/active?limit=5"
+```
+Expected: JSON with `totalFetched` and `jobs[]`.
+
+```bash
+curl -sS -X POST <YOUR_RENDER_URL>/api/resumes/upload \
+  -F "resume=@/absolute/path/to/resume.pdf"
+```
+Expected: JSON with `resumeId` and `profileSummary`.
+
+```bash
+curl -sS -X POST <YOUR_RENDER_URL>/api/jobs/match \
+  -H "Content-Type: application/json" \
+  -d '{"resumeId":"<PASTE_RESUME_ID_HERE>"}'
+```
+Expected: JSON with `jobs[]`, ATS scores, and links.
+
+## Make it truly startup-ready (next hardening)
+- Add authentication (API key/JWT) before exposing APIs publicly.
+- Replace in-memory `resumeStore` with Redis/PostgreSQL for persistence.
+- Add rate limiting and CORS policy.
+- Add MIME allowlist + malware scanning for uploads.
+- Add logging/monitoring (Render logs + Sentry).
+- Add privacy policy / retention rules for uploaded resumes.

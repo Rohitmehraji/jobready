@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: jobready-ai-agent
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
