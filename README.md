@@ -113,3 +113,11 @@ If Render shows **Timed Out** after `npm start`, use these settings:
 - Start command: `npm start`
 
 This repo already includes `/healthz` and `render.yaml` configured for that.
+
+
+### If Render still shows timeout (important)
+1. In Render service settings, set Health Check Path exactly to `/healthz`.
+2. Remove any custom `PORT` variable from Render dashboard variables.
+3. Trigger **Manual Deploy → Clear build cache & deploy latest commit**.
+4. Confirm logs contain: `[startup] JobReady AI agent listening on 0.0.0.0:<port>`.
+5. Open `https://<your-service>.onrender.com/healthz` and expect `ok`.

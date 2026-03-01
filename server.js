@@ -9,8 +9,11 @@ const mammoth = require('mammoth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
 const upload = multer({
-  dest: path.join(__dirname, 'uploads'),
+  dest: UPLOAD_DIR,
   limits: {
     fileSize: 8 * 1024 * 1024,
   },
@@ -197,6 +200,10 @@ app.get('/healthz', (_req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 app.use(express.json());
 
 app.post('/api/resumes/upload', upload.single('resume'), async (req, res) => {
@@ -310,5 +317,5 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`JobReady AI agent running on http://0.0.0.0:${PORT}`);
+  console.log(`[startup] JobReady AI agent listening on 0.0.0.0:${PORT}`);
 });
